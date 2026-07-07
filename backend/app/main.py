@@ -6,6 +6,8 @@ from app.routers.auth import router as auth_router
 from app.routers.roadmap import router as roadmap_router
 from app.routers.profile import router as profile_router
 from app.routers.workout_plan import router as workout_plan_router
+from app.routers.workout_day import router as workout_day_router
+
 # Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
@@ -18,7 +20,7 @@ app.include_router(auth_router)
 app.include_router(roadmap_router)
 app.include_router(profile_router)
 app.include_router(workout_plan_router)
-
+app.include_router(workout_day_router)
 
 @app.get("/")
 def root():

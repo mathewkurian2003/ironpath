@@ -15,3 +15,9 @@ class WorkoutPlan(Base):
     owner_id = Column(Integer, ForeignKey("users.id"), nullable=False)
 
     owner = relationship("User", back_populates="workout_plans")
+    
+    workout_days = relationship(
+    "WorkoutDay",
+    back_populates="workout_plan",
+    cascade="all, delete-orphan"
+)
