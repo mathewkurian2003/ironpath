@@ -3,3 +3,6 @@ from .profile import Profile
 from .roadmap import Roadmap
 from .workout_plan import WorkoutPlan
 from .workout_day import WorkoutDay
+from .exercise import Exercise
+from .workout_session import WorkoutSession
+from .exercise_log import ExerciseLog

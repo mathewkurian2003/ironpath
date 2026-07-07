@@ -7,3 +7,19 @@ from .workout_day import (
     WorkoutDayUpdate,
     WorkoutDayResponse,
 )
+from .exercise import (
+    ExerciseCreate,
+    ExerciseUpdate,
+    ExerciseResponse,
+)
+from .workout_session import (
+    WorkoutSessionCreate,
+    WorkoutSessionUpdate,
+    WorkoutSessionResponse,
+)
+
+from .exercise_log import (
+    ExerciseLogCreate,
+    ExerciseLogUpdate,
+    ExerciseLogResponse,
+)

@@ -23,3 +23,10 @@ class WorkoutDay(Base):
         "WorkoutPlan",
         back_populates="workout_days"
     )
+
+    # NEW
+    exercises = relationship(
+        "Exercise",
+        back_populates="workout_day",
+        cascade="all, delete-orphan"
+    )

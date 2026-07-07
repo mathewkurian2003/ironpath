@@ -21,3 +21,8 @@ class WorkoutPlan(Base):
     back_populates="workout_plan",
     cascade="all, delete-orphan"
 )
+    workout_sessions = relationship(
+    "WorkoutSession",
+    back_populates="workout_plan",
+    cascade="all, delete-orphan",
+)
