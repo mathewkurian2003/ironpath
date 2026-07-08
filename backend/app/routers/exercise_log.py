@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.orm import Session
 
 from app.auth.dependencies import get_current_user
@@ -28,7 +28,7 @@ def create_exercise_log(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    session = (
+    workout_session = (
         db.query(WorkoutSession)
         .filter(
             WorkoutSession.id == exercise_log.workout_session_id,
@@ -37,7 +37,7 @@ def create_exercise_log(
         .first()
     )
 
-    if not session:
+    if not workout_session:
         raise HTTPException(
             status_code=404,
             detail="Workout session not found",
@@ -55,11 +55,13 @@ def create_exercise_log(
             detail="Exercise not found",
         )
 
-    new_log = ExerciseLog(
-        workout_session_id=exercise_log.workout_session_id,
-        exercise_id=exercise_log.exercise_id,
-        order=exercise_log.order,
-    )
+    if exercise_log.completed and exercise_log.skipped:
+        raise HTTPException(
+            status_code=400,
+            detail="Exercise cannot be both completed and skipped.",
+        )
+
+    new_log = ExerciseLog(**exercise_log.model_dump())
 
     db.add(new_log)
     db.commit()
@@ -77,99 +79,114 @@ def get_exercise_logs(
     return (
         db.query(ExerciseLog)
         .join(WorkoutSession)
-        .filter(WorkoutSession.user_id == current_user.id)
-        .order_by(ExerciseLog.order)
+        .filter(
+            WorkoutSession.user_id == current_user.id
+        )
+        .order_by(
+            ExerciseLog.workout_session_id,
+            ExerciseLog.order,
+        )
         .all()
     )
 
 
 # Get one exercise log
-@router.get("/{log_id}", response_model=ExerciseLogResponse)
+@router.get("/{exercise_log_id}", response_model=ExerciseLogResponse)
 def get_exercise_log(
-    log_id: int,
+    exercise_log_id: int,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    log = (
+    exercise_log = (
         db.query(ExerciseLog)
         .join(WorkoutSession)
         .filter(
-            ExerciseLog.id == log_id,
+            ExerciseLog.id == exercise_log_id,
             WorkoutSession.user_id == current_user.id,
         )
         .first()
     )
 
-    if not log:
+    if not exercise_log:
         raise HTTPException(
             status_code=404,
             detail="Exercise log not found",
         )
 
-    return log
+    return exercise_log
 
 
 # Update exercise log
-@router.put("/{log_id}", response_model=ExerciseLogResponse)
+@router.put("/{exercise_log_id}", response_model=ExerciseLogResponse)
 def update_exercise_log(
-    log_id: int,
-    exercise_log: ExerciseLogUpdate,
+    exercise_log_id: int,
+    exercise_log_update: ExerciseLogUpdate,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    log = (
+    exercise_log = (
         db.query(ExerciseLog)
         .join(WorkoutSession)
         .filter(
-            ExerciseLog.id == log_id,
+            ExerciseLog.id == exercise_log_id,
             WorkoutSession.user_id == current_user.id,
         )
         .first()
     )
 
-    if not log:
+    if not exercise_log:
         raise HTTPException(
             status_code=404,
             detail="Exercise log not found",
         )
 
-    update_data = exercise_log.model_dump(exclude_unset=True)
+    update_data = exercise_log_update.model_dump(exclude_unset=True)
+
+    if (
+        update_data.get("completed", exercise_log.completed)
+        and update_data.get("skipped", exercise_log.skipped)
+    ):
+        raise HTTPException(
+            status_code=400,
+            detail="Exercise cannot be both completed and skipped.",
+        )
 
     for key, value in update_data.items():
-        setattr(log, key, value)
+        setattr(exercise_log, key, value)
 
     db.commit()
-    db.refresh(log)
+    db.refresh(exercise_log)
 
-    return log
+    return exercise_log
 
 
 # Delete exercise log
-@router.delete("/{log_id}")
+@router.delete(
+    "/{exercise_log_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
 def delete_exercise_log(
-    log_id: int,
+    exercise_log_id: int,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    log = (
+    exercise_log = (
         db.query(ExerciseLog)
         .join(WorkoutSession)
         .filter(
-            ExerciseLog.id == log_id,
+            ExerciseLog.id == exercise_log_id,
             WorkoutSession.user_id == current_user.id,
         )
         .first()
     )
 
-    if not log:
+    if not exercise_log:
         raise HTTPException(
             status_code=404,
             detail="Exercise log not found",
         )
 
-    db.delete(log)
+    db.delete(exercise_log)
     db.commit()
 
-    return {
-        "message": "Exercise log deleted successfully"
-    }
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

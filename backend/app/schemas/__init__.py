@@ -23,3 +23,9 @@ from .exercise_log import (
     ExerciseLogUpdate,
     ExerciseLogResponse,
 )
+
+from .set_log import (
+    SetLogCreate,
+    SetLogUpdate,
+    SetLogResponse,
+)

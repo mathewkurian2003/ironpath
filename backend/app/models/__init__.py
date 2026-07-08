@@ -6,3 +6,4 @@ from .workout_day import WorkoutDay
 from .exercise import Exercise
 from .workout_session import WorkoutSession
 from .exercise_log import ExerciseLog
+from .set_log import SetLog
