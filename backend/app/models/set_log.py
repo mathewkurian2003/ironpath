@@ -1,12 +1,6 @@
-from sqlalchemy import (
-    Column,
-    Integer,
-    Float,
-    Boolean,
-    ForeignKey,
-    Text
-)
+from sqlalchemy import Boolean, Column, DateTime, Float, ForeignKey, Integer, Text
 from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
 
 from app.core.database import Base
 
@@ -19,28 +13,35 @@ class SetLog(Base):
     exercise_log_id = Column(
         Integer,
         ForeignKey("exercise_logs.id", ondelete="CASCADE"),
-        nullable=False
+        nullable=False,
     )
 
     set_number = Column(Integer, nullable=False)
 
-    weight = Column(Float, nullable=False)
+    planned_weight = Column(Float, nullable=True)
+    actual_weight = Column(Float, nullable=True)
 
-    reps = Column(Integer, nullable=False)
-
-    rir = Column(Float, nullable=True)
+    planned_reps = Column(Integer, nullable=True)
+    actual_reps = Column(Integer, nullable=True)
 
     rpe = Column(Float, nullable=True)
+    rir = Column(Integer, nullable=True)
 
-    duration_seconds = Column(Integer, nullable=True)
-
-    completed = Column(Boolean, default=True)
-
-    failed = Column(Boolean, default=False)
-
+    completed = Column(Boolean, default=False)
     notes = Column(Text, nullable=True)
+
+    created_at = Column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+    )
+
+    updated_at = Column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+    )
 
     exercise_log = relationship(
         "ExerciseLog",
-        back_populates="set_logs"
+        back_populates="set_logs",
     )

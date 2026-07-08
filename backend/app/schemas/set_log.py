@@ -1,37 +1,48 @@
+from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel
 
 
 class SetLogBase(BaseModel):
+    exercise_log_id: int
     set_number: int
-    weight: float
-    reps: int
-    rir: Optional[float] = None
+
+    planned_weight: Optional[float] = None
+    actual_weight: Optional[float] = None
+
+    planned_reps: Optional[int] = None
+    actual_reps: Optional[int] = None
+
     rpe: Optional[float] = None
-    duration_seconds: Optional[int] = None
-    completed: bool = True
-    failed: bool = False
+    rir: Optional[int] = None
+
+    completed: bool = False
     notes: Optional[str] = None
 
 
 class SetLogCreate(SetLogBase):
-    exercise_log_id: int
+    pass
 
 
 class SetLogUpdate(BaseModel):
-    weight: Optional[float] = None
-    reps: Optional[int] = None
-    rir: Optional[float] = None
+    planned_weight: Optional[float] = None
+    actual_weight: Optional[float] = None
+
+    planned_reps: Optional[int] = None
+    actual_reps: Optional[int] = None
+
     rpe: Optional[float] = None
-    duration_seconds: Optional[int] = None
+    rir: Optional[int] = None
+
     completed: Optional[bool] = None
-    failed: Optional[bool] = None
     notes: Optional[str] = None
 
 
 class SetLogResponse(SetLogBase):
     id: int
-    exercise_log_id: int
+    created_at: datetime
+    updated_at: datetime
 
-    model_config = ConfigDict(from_attributes=True)
+    class Config:
+        from_attributes = True
