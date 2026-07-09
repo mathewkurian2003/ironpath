@@ -24,13 +24,14 @@ class ExerciseLog(Base):
         nullable=False,
     )
 
-    exercise_id = Column(
+    # Reference to the programmed exercise in the workout day
+    workout_day_exercise_id = Column(
         Integer,
-        ForeignKey("exercises.id", ondelete="CASCADE"),
+        ForeignKey("workout_day_exercises.id", ondelete="CASCADE"),
         nullable=False,
     )
 
-    # Order of exercise in workout
+    # Order of exercise in the workout
     order = Column(Integer, nullable=False)
 
     # Planned workout target
@@ -59,19 +60,19 @@ class ExerciseLog(Base):
         nullable=False,
     )
 
+    # Relationships
     workout_session = relationship(
         "WorkoutSession",
         back_populates="exercise_logs",
     )
 
-    exercise = relationship(
-        "Exercise",
+    workout_day_exercise = relationship(
+        "WorkoutDayExercise",
         back_populates="exercise_logs",
     )
 
-    # We'll add this when we create SetLog
     set_logs = relationship(
-         "SetLog",
-         back_populates="exercise_log",
-         cascade="all, delete-orphan",
+        "SetLog",
+        back_populates="exercise_log",
+        cascade="all, delete-orphan",
     )

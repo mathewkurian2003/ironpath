@@ -4,39 +4,41 @@ from typing import Optional
 from pydantic import BaseModel
 
 
-class ExerciseLogBase(BaseModel):
+# Used when creating an exercise log.
+# The backend will automatically copy the planned values
+# from WorkoutDayExercise.
+class ExerciseLogCreate(BaseModel):
     workout_session_id: int
-    exercise_id: int
-    order: int
-
-    planned_sets: int
-    planned_reps: int
-    planned_weight: float
-
-    completed: bool = False
-    skipped: bool = False
-    notes: Optional[str] = None
-
-
-class ExerciseLogCreate(ExerciseLogBase):
-    pass
+    workout_day_exercise_id: int
 
 
 class ExerciseLogUpdate(BaseModel):
-    order: Optional[int] = None
+    completed: Optional[bool] = None
+    skipped: Optional[bool] = None
 
     planned_sets: Optional[int] = None
     planned_reps: Optional[int] = None
     planned_weight: Optional[float] = None
 
-    completed: Optional[bool] = None
-    skipped: Optional[bool] = None
-
     notes: Optional[str] = None
 
 
-class ExerciseLogResponse(ExerciseLogBase):
+class ExerciseLogResponse(BaseModel):
     id: int
+
+    workout_session_id: int
+    workout_day_exercise_id: int
+
+    order: int
+
+    planned_sets: int
+    planned_reps: str
+    planned_weight: float
+
+    completed: bool
+    skipped: bool
+
+    notes: Optional[str] = None
 
     created_at: datetime
     updated_at: datetime

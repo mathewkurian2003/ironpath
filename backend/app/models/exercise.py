@@ -1,4 +1,11 @@
-from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy import (
+    Column,
+    Integer,
+    String,
+    Boolean,
+    Text,
+    JSON,
+)
 from sqlalchemy.orm import relationship
 
 from app.core.database import Base
@@ -9,35 +16,38 @@ class Exercise(Base):
 
     id = Column(Integer, primary_key=True, index=True)
 
-    name = Column(String, nullable=False)
+    name = Column(String, nullable=False, unique=True)
+    slug = Column(String, unique=True, nullable=False)
 
-    target_sets = Column(Integer, nullable=False)
+    primary_muscle = Column(String, nullable=False)
+    secondary_muscles = Column(JSON, nullable=True)
 
-    target_reps = Column(String, nullable=False)
-    # Examples:
-    # "8-10"
-    # "12"
-    # "AMRAP"
+    equipment = Column(String, nullable=True)
+    exercise_type = Column(String, nullable=True)
 
-    rest_time_seconds = Column(Integer, nullable=True)
+    movement_pattern = Column(String, nullable=True)
 
-    notes = Column(String, nullable=True)
+    difficulty = Column(String, nullable=True)
 
-    order = Column(Integer, nullable=False)
+    mechanic = Column(String, nullable=True)
 
-    workout_day_id = Column(
-        Integer,
-        ForeignKey("workout_days.id", ondelete="CASCADE"),
-        nullable=False
-    )
+    force_type = Column(String, nullable=True)
 
-    workout_day = relationship(
-        "WorkoutDay",
-        back_populates="exercises"
+    instructions = Column(Text, nullable=True)
+    tips = Column(Text, nullable=True)
+
+    video_url = Column(String, nullable=True)
+    image_url = Column(String, nullable=True)
+
+    is_compound = Column(Boolean, default=False)
+    is_active = Column(Boolean, default=True)
+
+    workout_day_exercises = relationship(
+        "WorkoutDayExercise",
+        back_populates="exercise",
     )
 
     exercise_logs = relationship(
-    "ExerciseLog",
-    back_populates="exercise",
-    cascade="all, delete-orphan",
-)
+        "ExerciseLog",
+        back_populates="exercise",
+    )

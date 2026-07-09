@@ -1,6 +1,7 @@
+from datetime import datetime
+
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
-from datetime import datetime
 
 from app.core.database import Base
 
@@ -19,6 +20,13 @@ class WorkoutSession(Base):
     workout_plan_id = Column(
         Integer,
         ForeignKey("workout_plans.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+
+    # NEW
+    workout_day_id = Column(
+        Integer,
+        ForeignKey("workout_days.id", ondelete="CASCADE"),
         nullable=False,
     )
 
@@ -53,9 +61,15 @@ class WorkoutSession(Base):
         "WorkoutPlan",
         back_populates="workout_sessions",
     )
-    
+
+    # NEW
+    workout_day = relationship(
+        "WorkoutDay",
+        back_populates="workout_sessions",
+    )
+
     exercise_logs = relationship(
-    "ExerciseLog",
-    back_populates="workout_session",
-    cascade="all, delete-orphan",
-)
+        "ExerciseLog",
+        back_populates="workout_session",
+        cascade="all, delete-orphan",
+    )

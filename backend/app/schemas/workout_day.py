@@ -1,5 +1,8 @@
-from typing import Optional
+from typing import List, Optional
+
 from pydantic import BaseModel
+
+from .workout_day_exercise import WorkoutDayExerciseResponse
 
 
 class WorkoutDayBase(BaseModel):
@@ -21,6 +24,9 @@ class WorkoutDayUpdate(BaseModel):
 class WorkoutDayResponse(WorkoutDayBase):
     id: int
     workout_plan_id: int
+
+    # NEW
+    workout_day_exercises: List[WorkoutDayExerciseResponse] = []
 
     class Config:
         from_attributes = True

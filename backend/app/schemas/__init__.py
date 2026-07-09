@@ -29,3 +29,9 @@ from .set_log import (
     SetLogUpdate,
     SetLogResponse,
 )
+
+from .workout_day_exercise import (
+    WorkoutDayExerciseCreate,
+    WorkoutDayExerciseUpdate,
+    WorkoutDayExerciseResponse,
+)

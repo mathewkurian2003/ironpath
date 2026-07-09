@@ -5,9 +5,9 @@ from app.auth.dependencies import get_current_user
 from app.core.database import get_db
 
 from app.models.user import User
-from app.models.exercise import Exercise
-from app.models.exercise_log import ExerciseLog
 from app.models.workout_session import WorkoutSession
+from app.models.workout_day_exercise import WorkoutDayExercise
+from app.models.exercise_log import ExerciseLog
 
 from app.schemas.exercise_log import (
     ExerciseLogCreate,
@@ -43,25 +43,34 @@ def create_exercise_log(
             detail="Workout session not found",
         )
 
-    exercise = (
-        db.query(Exercise)
-        .filter(Exercise.id == exercise_log.exercise_id)
+    workout_day_exercise = (
+        db.query(WorkoutDayExercise)
+        .filter(
+            WorkoutDayExercise.id == exercise_log.workout_day_exercise_id
+        )
         .first()
     )
 
-    if not exercise:
+    if not workout_day_exercise:
         raise HTTPException(
             status_code=404,
-            detail="Exercise not found",
+            detail="Workout day exercise not found",
         )
 
-    if exercise_log.completed and exercise_log.skipped:
-        raise HTTPException(
-            status_code=400,
-            detail="Exercise cannot be both completed and skipped.",
-        )
+    new_log = ExerciseLog(
+        workout_session_id=exercise_log.workout_session_id,
+        workout_day_exercise_id=exercise_log.workout_day_exercise_id,
 
-    new_log = ExerciseLog(**exercise_log.model_dump())
+        order=workout_day_exercise.order,
+
+        planned_sets=workout_day_exercise.target_sets,
+        planned_reps=workout_day_exercise.target_reps,
+        planned_weight=workout_day_exercise.target_weight or 0,
+
+        completed=False,
+        skipped=False,
+        notes=workout_day_exercise.notes,
+    )
 
     db.add(new_log)
     db.commit()
